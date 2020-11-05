@@ -3,13 +3,28 @@ import Url from 'url';
 import './PageLinks.scss';
 import icon from '../../assets/icon-print.svg';
 
-const baseURL = 'https://github.com/webpack/webpack.js.org/edit/master/';
+const isV4 = new URL(location.href).hostname === 'v4.webpack.js.org';
 
-export default ({
-  page = {},
-  ...props
-}) => {
-  const editLink = page.edit || Url.resolve(baseURL, page.path);
+const baseURL = isV4
+  ? v4BaseURL
+  : 'https://github.com/webpack/webpack.js.org/edit/master/';
+const v4BaseURL = 'https://github.com/webpack/v4.webpack.js.org/edit/gh-pages/';
+
+export default (
+  { page = {}, 
+  ...props }
+) => {
+  const v4RepoLink = page.path
+    .replace(/\/([\w-]+)\.(mdx?)$/, (match, p1) => {
+      return `/${p1 === 'index' ? p1 : p1 + '/index'}.html`;
+    })
+    .replace(/^src\/content\//, '');
+
+  const editLink =
+    page.edit || isV4
+      ? Url.resolve(v4BaseURL, v4RepoLink)
+      : Url.resolve(baseURL, page.path);
+
 
   // TODO: Make sure we add `repo` / `edit` and address `type` (above)
   return (
